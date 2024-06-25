@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Libary.Data.PublicationAutor>
+
+@{
+    ViewData["Title"] = "PublicationAutors";
+}
+
+<h1>PublicationAutors</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Autor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Publication)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Autor.AutorName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Publication.BookName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<div class="container">
+    <div id="chart2"></div>
+</div>
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            drawPieChart();
+            drawColumnChart();
+        }
+
+        function drawPieChart() {
+            $.get('/api/Chart/JsonData', function (JsonData) {
+                var data = google.visualization.arrayToDataTable(JsonData, false);
+                var options = {
+                    title: "Співвідношення кількості книжок та категорій",
+                    width: 500,
+                    height: 400
+                };
+                var chart = new google.visualization.PieChart(document.getElementById('chart1'));
+                chart.draw(data, options);
+            });
+        }
+
+        function drawColumnChart() {
+            $.get('/api/Chart/PublicationAutorData', function (JsonData) {
+                var data = google.visualization.arrayToDataTable(JsonData, false);
+                var options = {
+                    title: "Number of Authors per Publication",
+                    width: 500,
+                    height: 400,
+                    hAxis: {
+                        title: 'Publication'
+                    },
+                    vAxis: {
+                        title: 'Number of Authors'
+                    }
+                };
+                var chart = new google.visualization.ColumnChart(document.getElementById('chart2'));
+                chart.draw(data, options);
+            });
+        }
+    </script>
+}
